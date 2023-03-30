@@ -1,7 +1,5 @@
 # Ruby Websocket Client Example
 
----
-
 This shows a quick way to connect to a socket, subscribe to a channel, and receive messages.  To run:
 
 ````zsh
