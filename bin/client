@@ -1,0 +1,35 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'json'
+require 'dotenv/load'
+require 'faye/websocket'
+require 'eventmachine'
+
+socket_uri = ENV['SOCKET_URI']
+channel_id = ENV['CHANNEL_ID']
+
+puts "Connecting to: #{socket_uri}"
+
+EM.run do
+  client = Faye::WebSocket::Client.new(socket_uri)
+
+  client.on :open do |event|
+    timestamp   = Time.now.to_i * 1_000
+    channel_msg = { subscribe: { channel_id => timestamp.to_s } }.to_json
+
+    puts "Connection established, subscribing to channel: #{channel_msg}"
+
+    client.send(channel_msg)
+  end
+
+  client.on :message do |event|
+    puts "Received: #{event.data}"
+  end
+
+  client.on :close do |event|
+    puts "Connection closed, #{event.code} - #{event.reason}"
+
+    client = nil
+  end
+end
